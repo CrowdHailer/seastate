@@ -1,6 +1,6 @@
 
 console.log('this');
-throw 'error';
+return;
 
 import { writeFile } from "node:fs/promises";
 // Replace this with your actual API endpoint.
