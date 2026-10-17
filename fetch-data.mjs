@@ -1,5 +1,5 @@
 
-console.log('this);
+console.log('this');
 throw 'error';
 
 import { writeFile } from "node:fs/promises";
