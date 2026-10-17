@@ -26,7 +26,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -49,7 +49,7 @@ jobs:
         env:
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OLLAMA_MODEL: kimi-k2.6
-          OLLAMA_CONCURRENCY: '6'
+          OLLAMA_CONCURRENCY: '3'
         run: node build-art.mjs
 
       - name: Assemble site

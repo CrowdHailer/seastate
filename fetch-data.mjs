@@ -13,6 +13,14 @@ const locations = JSON.parse(await readFile(new URL("./locations.json", import.m
 const localDate = process.env.SEASTATE_DATE ?? londonParts(new Date()).date;
 const range = { start: addDays(localDate, -1), end: addDays(localDate, 1) };
 
+// Four pictures a day. Each slot is painted at `hour` and shown for the UK hours in [from, to).
+export const SLOTS = [
+  { key: "morning", label: "Morning", hour: 8, from: 5, to: 11 },
+  { key: "noon", label: "Noon", hour: 12, from: 11, to: 14 },
+  { key: "afternoon", label: "Afternoon", hour: 15, from: 14, to: 19 },
+  { key: "night", label: "Night", hour: 22, from: 19, to: 5 }
+];
+
 const ATTRIBUTION = [
   { name: "Open-Meteo weather forecast API", url: "https://open-meteo.com/", licence: "CC BY 4.0", note: "Weather data by Open-Meteo.com and its national weather service model providers." },
   { name: "Open-Meteo marine forecast API", url: "https://open-meteo.com/en/docs/marine-weather-api", licence: "CC BY 4.0", note: "Marine data by Open-Meteo.com with DWD, Copernicus Marine Service and Météo-France models." },
@@ -188,6 +196,7 @@ async function buildLocation(loc) {
         .map(t => ({ ...t, localTime: londonParts(new Date(t.time)).time }))
     },
     hours,
+    slots: SLOTS.map(slot => ({ ...slot, index: hours.findIndex(h => h.localHour === slot.hour) })).filter(slot => slot.index >= 0),
     quality: { hours: hours.length, hoursWithMissingData: missing },
     attribution: ATTRIBUTION
   };

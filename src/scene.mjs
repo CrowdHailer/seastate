@@ -413,6 +413,13 @@ function windFlag({ force, drift, night, shoreY }) {
   <circle cx="${x}" cy="${top - 6}" r="8" fill="#ffd84a" stroke="#1d2550" stroke-width="3"/></g>`;
 }
 
+// Readable Beaufort tile, moon badge and caption strip, overlaid on model-painted artwork too.
+export function overlay(data, hourIndex) {
+  const hour = data.hours[hourIndex];
+  const defs = `<defs><filter id="ss-paint" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter></defs>`;
+  return defs + label({ data, hour, force: hour.wind.beaufort ?? 0, night: hour.sun.phase === "night" }).replaceAll("url(#paint)", "url(#ss-paint)");
+}
+
 function label({ data, hour, force, night }) {
   const c = BEAUFORT_COLOURS[force] ?? BEAUFORT_COLOURS[0];
   const name = hour.wind.beaufortName ?? "";

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Hourly painted sea-state artwork for Gwithian, Maenporth, Sidmouth and Woolacombe: wind, waves, tide, sun and moon.">
+  <meta name="description" content="Painted sea-state artwork for Gwithian, Maenporth, Sidmouth and Woolacombe: wind, waves, tide, sun and moon.">
   <title>SeaState</title>
   <style>
     :root {
@@ -46,12 +46,12 @@
     .controls .now { font: inherit; font-weight: 700; font-size: 14px; border: 2px solid var(--accent); color: var(--accent); background: transparent; border-radius: 999px; padding: 8px 16px; cursor: pointer; min-height: 40px; }
     .controls .now:hover { background: var(--accent); color: var(--navy); }
     .hour-label { font-size: 20px; font-weight: 700; }
-    .hours { display: grid; grid-template-columns: repeat(24, minmax(36px, 1fr)); gap: 4px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: thin; }
+    .hours { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 4px 2px 10px; }
     .hours button {
-      font: inherit; font-size: 12px; font-weight: 700; border: 2px solid transparent; border-radius: 8px; padding: 4px 0 3px; cursor: pointer;
-      color: #fff; min-height: 46px; display: flex; flex-direction: column; align-items: center; line-height: 1.15; text-shadow: 0 1px 2px #0007;
+      font: inherit; font-size: 15px; font-weight: 700; border: 2px solid transparent; border-radius: 10px; padding: 6px 4px; cursor: pointer;
+      color: #fff; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; text-shadow: 0 1px 2px #0007;
     }
-    .hours button small { font-size: 10px; font-weight: 400; opacity: .9; }
+    .hours button small { font-size: 12px; font-weight: 400; opacity: .95; }
     .hours button[aria-pressed="true"] { border-color: #fffdf4; box-shadow: 0 0 0 2px var(--amber); transform: translateY(-2px); }
     .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-top: 12px; }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
@@ -95,18 +95,18 @@
       </div>
       <figure>
         <img id="art" alt="" width="1600" height="1000">
-        <button class="nav-btn" id="prev" type="button" aria-label="Previous hour">&#8249;</button>
-        <button class="nav-btn" id="next" type="button" aria-label="Next hour">&#8250;</button>
+        <button class="nav-btn" id="prev" type="button" aria-label="Previous picture">&#8249;</button>
+        <button class="nav-btn" id="next" type="button" aria-label="Next picture">&#8250;</button>
       </figure>
       <div class="controls">
         <span class="hour-label" id="hour-label"></span>
         <button class="now" id="now" type="button">Jump to now</button>
       </div>
-      <div class="hours" id="hours" role="group" aria-label="Hours of the day"></div>
+      <div class="hours" id="hours" role="group" aria-label="Times of day"></div>
 
       <div class="grid">
         <section class="card" aria-labelledby="h-hour">
-          <h2 id="h-hour">This hour</h2>
+          <h2 id="h-hour">At this time</h2>
           <dl class="stats" id="stats"></dl>
         </section>
         <section class="card" aria-labelledby="h-day">
@@ -165,35 +165,36 @@
     const initial = indexJson.locations.some(l => l.slug === params.get('beach')) ? params.get('beach') : indexJson.locations[0]?.slug;
     select.value = initial;
 
+    // The slot whose window [from, to) contains the current UK hour; night wraps past midnight.
     function nowIndex() {
       const now = londonNow();
       if (!forecast || forecast.date !== now.date) return 0;
-      const i = forecast.hours.findIndex(h => h.localHour === now.hour);
+      const i = slots.findIndex(s => s.from < s.to ? now.hour >= s.from && now.hour < s.to : now.hour >= s.from || now.hour < s.to);
       return i < 0 ? 0 : i;
     }
 
     function syncUrl() {
-      const p = new URLSearchParams({ beach: select.value, hour: forecast.hours[index].localTime.slice(0, 2) });
+      const p = new URLSearchParams({ beach: select.value, time: slots[index].key });
       history.replaceState(null, '', `?${p}`);
     }
 
     function preload(i) {
-      const h = forecast.hours[i];
-      if (h?.art && !cache.has(h.art.png)) { const im = new Image(); im.src = h.art.png; cache.set(h.art.png, im); }
+      const a = slots[i]?.art;
+      if (a && !cache.has(a.png)) { const im = new Image(); im.src = a.png; cache.set(a.png, im); }
     }
 
+    let slots = [];
     function show(i) {
-      index = Math.max(0, Math.min(forecast.hours.length - 1, i));
-      const h = forecast.hours[index], w = h.wind, v = h.waves, t = h.tide;
-      if (h.art) {
-        img.src = h.art.png;
-        img.alt = `Painted seascape of ${forecast.location.name} at ${h.localTime}: Beaufort ${w.beaufort} ${w.beaufortName}, waves ${fmt(v.heightM, ' m', 1)}, ${h.cloudCover}% cloud, sun ${h.sun.phase}, moon ${h.moon.up ? 'up' : 'down'}.`;
+      index = Math.max(0, Math.min(slots.length - 1, i));
+      const slot = slots[index], h = forecast.hours[slot.index], w = h.wind, v = h.waves, t = h.tide;
+      if (slot.art) {
+        img.src = slot.art.png;
+        img.alt = `Painted seascape of ${forecast.location.name}, ${slot.label.toLowerCase()} (${h.localTime}): Beaufort ${w.beaufort} ${w.beaufortName}, waves ${fmt(v.heightM, ' m', 1)}, ${h.cloudCover}% cloud, sun ${h.sun.phase}, moon ${h.moon.up ? 'up' : 'down'}.`;
       }
       $('prev').disabled = index === 0;
-      $('next').disabled = index === forecast.hours.length - 1;
-      $('hour-label').textContent = `${h.localTime} UK time`;
+      $('next').disabled = index === slots.length - 1;
+      $('hour-label').textContent = `${slot.label} · ${h.localTime} UK time`;
       for (const b of $('hours').children) b.setAttribute('aria-pressed', String(Number(b.dataset.i) === index));
-      $('hours').children[index]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
       const tile = el('span', { className: 'tile', textContent: w.beaufort ?? '–' });
       tile.style.background = COLOURS[w.beaufort] ?? '#555';
@@ -206,11 +207,11 @@
         stat('Cloud cover', fmt(h.cloudCover, '%')),
         stat('Sky', { night: 'Night', dawn: 'Dawn', day: 'Daylight', dusk: 'Dusk' }[h.sun.phase], h.moon.up ? 'Moon above the horizon' : 'Moon below the horizon')
       );
-      const a = h.art ?? {};
+      const a = slot.art ?? {};
       $('prov').replaceChildren(
         a.source === 'ollama' ? `Painted as SVG by ${a.model} via Ollama Cloud` : 'Painted by the built-in procedural painter',
         a.generatedAt ? ` at ${new Date(a.generatedAt).toLocaleString('en-GB', { timeZone: 'Europe/London' })}` : '',
-        ' from this hour’s forecast. ',
+        ' from the forecast for that time. ',
         el('a', { href: a.svg ?? '#', textContent: 'SVG' }), ' · ',
         el('a', { href: a.meta ?? '#', textContent: 'prompt & metadata' })
       );
@@ -233,12 +234,14 @@
       $('date').textContent = today ? day : `${day} (latest available forecast)`;
       $('now').hidden = !today;
 
-      $('hours').replaceChildren(...forecast.hours.map((h, i) => {
-        const b = el('button', { type: 'button', title: `${h.localTime}: ${h.wind.beaufortName}, ${fmt(h.waves.heightM, ' m', 1)} waves` });
+      slots = forecast.slots ?? [];
+      $('hours').replaceChildren(...slots.map((slot, i) => {
+        const h = forecast.hours[slot.index];
+        const b = el('button', { type: 'button', title: `${slot.label} ${h.localTime}: ${h.wind.beaufortName}, ${fmt(h.waves.heightM, ' m', 1)} waves` });
         b.dataset.i = i;
         b.style.background = COLOURS[h.wind.beaufort] ?? '#555';
-        b.setAttribute('aria-label', `${h.localTime}, force ${h.wind.beaufort}`);
-        b.append(h.localTime.slice(0, 2), el('small', { textContent: `F${h.wind.beaufort ?? '–'}` }));
+        b.setAttribute('aria-label', `${slot.label}, ${h.localTime}, force ${h.wind.beaufort}`);
+        b.append(slot.label, el('small', { textContent: `${h.localTime} · F${h.wind.beaufort ?? '–'}` }));
         b.addEventListener('click', () => show(i));
         return b;
       }));
@@ -253,9 +256,9 @@
       $('tide-note').textContent = forecast.tides.note;
       $('attribution').replaceChildren(...forecast.attribution.map(a => { const li = el('li'); li.append(el('a', { href: a.url, textContent: a.name }), ` — ${a.note}${a.licence ? ` (${a.licence})` : ''}`); return li; }));
 
-      const wanted = params.get('hour');
-      const fromUrl = wanted != null && slug === initial ? forecast.hours.findIndex(h => h.localTime.slice(0, 2) === wanted.padStart(2, '0')) : -1;
-      params.delete('hour');
+      const wanted = params.get('time');
+      const fromUrl = wanted && slug === initial ? slots.findIndex(s => s.key === wanted) : -1;
+      params.delete('time');
       show(fromUrl >= 0 ? fromUrl : nowIndex());
     }
 
