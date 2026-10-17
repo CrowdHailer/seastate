@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ea-ukk3105-31400",
+    "slug": "gwithian",
+    "name": "Gwithian",
+    "county": "Cornwall",
+    "latitude": 50.238,
+    "longitude": -5.395,
+    "facing": "north-west",
+    "scene": "St Ives Bay: a long golden beach backed by grassy dunes, looking out to Godrevy Island and its white octagonal lighthouse on a dark rock to the right"
+  },
+  {
+    "id": "ea-ukk3102-28800",
+    "slug": "maenporth",
+    "name": "Maenporth (Falmouth)",
+    "county": "Cornwall",
+    "latitude": 50.124,
+    "longitude": -5.09,
+    "facing": "east",
+    "scene": "a small sheltered sandy cove near Falmouth framed by wooded green headlands, a beach café and a few white houses, the wide waters of Falmouth Bay beyond"
+  },
+  {
+    "id": "ea-ukk4301-21800",
+    "slug": "sidmouth",
+    "name": "Sidmouth Beach",
+    "county": "Devon",
+    "latitude": 50.678,
+    "longitude": -3.239,
+    "facing": "south",
+    "scene": "a Regency seafront promenade of pastel and white terraced houses with tall red sandstone Jurassic Coast cliffs either side and a pebbly beach"
+  },
+  {
+    "id": "ea-ukk4304-34400",
+    "slug": "woolacombe",
+    "name": "Woolacombe",
+    "county": "Devon",
+    "latitude": 51.173,
+    "longitude": -4.21,
+    "facing": "west",
+    "scene": "three miles of wide golden surf beach with high grassy dunes and the rocky headland of Morte Point stretching out to sea, surfers in the waves"
+  }
+]

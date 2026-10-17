@@ -1,309 +1,275 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <!-- SEA STATE -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Choose Gwithian, Maenporth, Sidmouth Beach or Woolacombe in Devon and Cornwall.">
-  <title>Choose your beach | SeaState</title>
+  <meta name="description" content="Hourly painted sea-state artwork for Gwithian, Maenporth, Sidmouth and Woolacombe: wind, waves, tide, sun and moon.">
+  <title>SeaState</title>
   <style>
-    /* All component styles are scoped to #seastate-selector for easy integration. */
-    /* Demo page background: omit this body rule when integrating with a styled page. */
-    body { margin: 0; background: #eef3f2; }
-    #seastate-selector {
-      --ss-ink: #153b42; --ss-muted: #526c70; --ss-teal: #176862;
-      --ss-line: #cedbd8; --ss-paper: #fffefa;
-      box-sizing: border-box; color: var(--ss-ink);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.55; max-width: 1000px; margin: 0 auto;
-      padding: clamp(24px, 5vw, 64px) clamp(18px, 4vw, 44px);
+    :root {
+      --ink: #f4f1ff; --muted: #b9c0e8; --navy: #0d1240; --panel: #171e5a; --line: #2f3a86;
+      --accent: #4fd0d8; --amber: #f2b632;
     }
-    #seastate-selector *, #seastate-selector *::before, #seastate-selector *::after { box-sizing: inherit; }
-    #seastate-selector [hidden] { display: none !important; }
-    #seastate-selector .ss-brand { display: flex; align-items: center; gap: 10px; font-weight: 780; font-size: 21px; letter-spacing: -.6px; }
-    #seastate-selector .ss-brand svg { width: 34px; height: 29px; color: var(--ss-teal); }
-    #seastate-selector .ss-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    #seastate-selector .ss-uk { font-size: 12px; font-weight: 650; border: 1px solid #b7cbc6; border-radius: 999px; padding: 5px 12px; }
-    #seastate-selector .ss-intro { margin: 48px 0 28px; max-width: 650px; }
-    #seastate-selector .ss-eyebrow { margin: 0 0 9px; font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; color: var(--ss-teal); }
-    #seastate-selector h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1.12; letter-spacing: -1.8px; font-weight: 720; margin: 0 0 14px; }
-    #seastate-selector .ss-lead { margin: 0; font-size: 16px; color: var(--ss-muted); max-width: 530px; }
-    #seastate-selector .ss-card { background: var(--ss-paper); border: 1px solid var(--ss-line); border-radius: 20px; overflow: hidden; box-shadow: 0 14px 42px #17463c08; }
-    #seastate-selector .ss-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 19px 26px; border-bottom: 1px solid var(--ss-line); }
-    #seastate-selector .ss-card-header h2 { font-size: 15px; font-weight: 700; margin: 0; }
-    #seastate-selector .ss-count { font-size: 12px; color: var(--ss-muted); text-align: right; }
-    #seastate-selector form { margin: 0; padding: 26px; }
-    #seastate-selector .ss-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 25px 22px; }
-    #seastate-selector .ss-field { min-width: 0; }
-    #seastate-selector label { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; margin-bottom: 9px; }
-    #seastate-selector .ss-number { display: inline-grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: #e6efeb; color: #2f655c; font-size: 10px; font-weight: 750; }
-    #seastate-selector .ss-select-wrap { position: relative; }
-    #seastate-selector .ss-select-wrap::after { content: ""; position: absolute; right: 18px; top: 21px; width: 7px; height: 7px; border-bottom: 2px solid #55756d; border-right: 2px solid #55756d; transform: rotate(45deg); pointer-events: none; }
-    #seastate-selector select { display: block; width: 100%; min-height: 52px; border: 1px solid #b9cbc5; border-radius: 9px; background: white; color: var(--ss-ink); font: inherit; font-size: 15px; line-height: 1.4; padding: 13px 42px 13px 14px; appearance: none; cursor: pointer; }
-    #seastate-selector select:hover { border-color: var(--ss-teal); }
-    #seastate-selector select:focus-visible, #seastate-selector button:focus-visible, #seastate-selector summary:focus-visible, #seastate-selector a:focus-visible { outline: 3px solid #008a89; outline-offset: 4px; }
-    #seastate-selector .ss-hint { font-size: 12px; color: var(--ss-muted); margin: 7px 0 0; }
-    #seastate-selector .ss-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid #e0e8e3; }
-    #seastate-selector .ss-status { flex: 1 1 210px; margin: 0; font-size: 13px; color: var(--ss-muted); }
-    #seastate-selector .ss-buttons { display: flex; gap: 10px; align-items: center; }
-    #seastate-selector button { font: inherit; font-size: 13px; font-weight: 700; line-height: 1.4; padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; min-height: 44px; }
-    #seastate-selector .ss-submit { background: var(--ss-teal); color: white; }
-    #seastate-selector .ss-submit:hover:not(:disabled) { background: #10554f; }
-    #seastate-selector .ss-submit:disabled { background: #e1e9e5; color: #627771; cursor: not-allowed; }
-    #seastate-selector .ss-reset { background: transparent; color: var(--ss-ink); border-color: #c9d8d1; }
-    #seastate-selector .ss-reset:hover { background: #edf3ef; }
-    #seastate-selector .ss-result { margin: 20px 26px 26px; padding: 21px 23px; border: 1px solid #b5d0c6; border-radius: 12px; background: #edf6f0; }
-    #seastate-selector .ss-result h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.5px; margin: 5px 0 7px; }
-    #seastate-selector .ss-result p { margin: 0; font-size: 13px; color: #3c6259; overflow-wrap: anywhere; }
-    #seastate-selector .ss-result:focus { outline: 2px solid #176862; outline-offset: 3px; }
-    #seastate-selector .ss-foot { margin: 22px 3px 0; font-size: 12px; color: var(--ss-muted); }
-    #seastate-selector details { margin-top: 16px; }
-    #seastate-selector summary { width: fit-content; cursor: pointer; font-weight: 650; color: var(--ss-ink); }
-    #seastate-selector details p { max-width: 740px; margin: 11px 0; }
-    #seastate-selector a { color: #176862; text-underline-offset: 3px; }
-    #seastate-selector .ss-sources { padding-left: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 25px; }
-    #seastate-selector .ss-updated { margin-top: 18px; font-size: 11px; }
-    @media (max-width: 620px) {
-      #seastate-selector .ss-intro { margin-top: 35px; }
-      #seastate-selector .ss-fields { grid-template-columns: 1fr; gap: 22px; }
-      #seastate-selector .ss-card-header { padding: 17px 20px; align-items: flex-start; }
-      #seastate-selector form { padding: 22px 20px; }
-      #seastate-selector .ss-card { border-radius: 15px; }
-      #seastate-selector .ss-buttons { width: 100%; }
-      #seastate-selector .ss-submit { flex: 1; }
-      #seastate-selector .ss-result { margin: 0 20px 20px; padding: 18px; }
-      #seastate-selector .ss-sources { grid-template-columns: 1fr; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--ink); background: var(--navy);
+      background-image: radial-gradient(1200px 600px at 80% -10%, #2a2f8a 0%, transparent 60%), radial-gradient(900px 500px at -10% 110%, #11507a 0%, transparent 55%);
+      font-family: "Trebuchet MS", system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.5; min-height: 100vh;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 18px 16px 40px; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; letter-spacing: -.5px; }
+    .brand svg { width: 38px; height: 32px; color: var(--accent); }
+    .beach-picker { display: flex; align-items: center; gap: 10px; }
+    .beach-picker label { font-size: 13px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+    select {
+      font: inherit; font-size: 17px; font-weight: 700; color: var(--navy); background: #fffdf4; border: 3px solid #fffdf4;
+      border-radius: 10px; padding: 9px 40px 9px 14px; min-height: 48px; cursor: pointer; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--navy) 50%), linear-gradient(135deg, var(--navy) 50%, transparent 50%);
+      background-position: right 20px top 21px, right 14px top 21px; background-size: 6px 6px; background-repeat: no-repeat;
+    }
+    select:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+    .title { margin: 22px 0 12px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+    h1 { margin: 0; font-size: clamp(26px, 4.5vw, 42px); letter-spacing: -1px; line-height: 1.15; }
+    .date { color: var(--muted); font-size: 15px; }
+    figure { margin: 0; position: relative; border-radius: 14px; overflow: hidden; border: 4px solid #fffdf4; background: #1d2550; aspect-ratio: 16 / 10; box-shadow: 0 18px 50px #0006; }
+    figure img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; border: 3px solid #1d2550;
+      background: #fffdf4; color: #1d2550; font-size: 26px; font-weight: 700; cursor: pointer; display: grid; place-items: center; box-shadow: 0 4px 14px #0005;
+    }
+    .nav-btn:hover:not(:disabled) { background: var(--amber); }
+    .nav-btn:disabled { opacity: .35; cursor: default; }
+    #prev { left: 12px; } #next { right: 12px; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 14px 0 6px; }
+    .controls .now { font: inherit; font-weight: 700; font-size: 14px; border: 2px solid var(--accent); color: var(--accent); background: transparent; border-radius: 999px; padding: 8px 16px; cursor: pointer; min-height: 40px; }
+    .controls .now:hover { background: var(--accent); color: var(--navy); }
+    .hour-label { font-size: 20px; font-weight: 700; }
+    .hours { display: grid; grid-template-columns: repeat(24, minmax(36px, 1fr)); gap: 4px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: thin; }
+    .hours button {
+      font: inherit; font-size: 12px; font-weight: 700; border: 2px solid transparent; border-radius: 8px; padding: 4px 0 3px; cursor: pointer;
+      color: #fff; min-height: 46px; display: flex; flex-direction: column; align-items: center; line-height: 1.15; text-shadow: 0 1px 2px #0007;
+    }
+    .hours button small { font-size: 10px; font-weight: 400; opacity: .9; }
+    .hours button[aria-pressed="true"] { border-color: #fffdf4; box-shadow: 0 0 0 2px var(--amber); transform: translateY(-2px); }
+    .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-top: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .card h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0; }
+    .stats div { background: #0f1548; border-radius: 10px; padding: 10px 12px; }
+    .stats dt { font-size: 12px; color: var(--muted); }
+    .stats dd { margin: 2px 0 0; font-size: 18px; font-weight: 700; }
+    .stats dd small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+    .tile { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; border: 2px solid #fff; color: #fff; font-weight: 800; margin-right: 8px; vertical-align: middle; text-shadow: 0 1px 2px #0008; }
+    ul.tides { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+    ul.tides li { background: #0f1548; border-radius: 8px; padding: 6px 10px; font-size: 14px; }
+    .note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+    .prov { font-size: 13px; color: var(--muted); }
+    .prov code { color: var(--ink); }
+    footer { margin-top: 26px; font-size: 12px; color: var(--muted); }
+    footer ul { padding-left: 18px; }
+    .error { background: #5a1d2a; border: 1px solid #a8464f; padding: 14px; border-radius: 10px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .nav-btn { width: 42px; height: 42px; font-size: 20px; }
+      .beach-picker { width: 100%; } .beach-picker select { flex: 1; }
     }
   </style>
 </head>
 <body>
-  <!-- Copy this main element, the scoped CSS, and BOTH scripts into an existing page. -->
-  <main id="seastate-selector">
-    <header class="ss-top">
-      <div class="ss-brand"><svg viewBox="0 0 36 30" fill="none" aria-hidden="true"><path d="M2 9c4-7 9-7 13 0s9 7 13 0M2 18c4-7 9-7 13 0s9 7 13 0M7 26c3-4 6-4 9 0s6 4 9 0" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>seastate</div>
-      <span class="ss-uk">United Kingdom</span>
-    </header>
-    <section class="ss-intro" aria-labelledby="ss-title">
-      <p class="ss-eyebrow">Explore the UK coast</p>
-      <h1 id="ss-title">Choose your beach.</h1>
-      <p class="ss-lead">Choose one of four beaches in Devon and Cornwall. Select England, South West, your county and then your beach.</p>
-    </section>
-    <section class="ss-card" aria-labelledby="ss-form-title">
-      <div class="ss-card-header">
-        <h2 id="ss-form-title">Find a coastal location</h2>
-        <span class="ss-count" id="ss-count"></span>
+  <div class="wrap">
+    <header>
+      <div class="brand"><svg viewBox="0 0 36 30" fill="none" aria-hidden="true"><path d="M2 9c4-7 9-7 13 0s9 7 13 0M2 18c4-7 9-7 13 0s9 7 13 0M7 26c3-4 6-4 9 0s6 4 9 0" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>seastate</div>
+      <div class="beach-picker">
+        <label for="beach">Beach</label>
+        <select id="beach" aria-describedby="beach-help"></select>
       </div>
-      <form id="ss-location-form">
-        <input type="hidden" name="country" value="UK">
-        <div class="ss-fields">
-          <div class="ss-field" id="ss-nation-field">
-            <label for="ss-nation"><span class="ss-number" aria-hidden="true">01</span>UK nation</label>
-            <div class="ss-select-wrap"><select id="ss-nation" name="nation" required aria-describedby="ss-nation-hint"><option value="">Choose a nation</option></select></div>
-            <p class="ss-hint" id="ss-nation-hint">Currently available: England.</p>
-          </div>
-          <div class="ss-field" id="ss-region-field" hidden>
-            <label for="ss-region"><span class="ss-number" aria-hidden="true">02</span>Region</label>
-            <div class="ss-select-wrap"><select id="ss-region" name="region" required disabled aria-describedby="ss-region-hint"><option value="">Choose a region</option></select></div>
-            <p class="ss-hint" id="ss-region-hint">Currently available: South West.</p>
-          </div>
-          <div class="ss-field" id="ss-area-field" hidden>
-            <label for="ss-area"><span class="ss-number" aria-hidden="true">03</span>County or coastal area</label>
-            <div class="ss-select-wrap"><select id="ss-area" name="area" required disabled aria-describedby="ss-area-hint"><option value="">Choose an area</option></select></div>
-            <p class="ss-hint" id="ss-area-hint">Choose Cornwall or Devon.</p>
-          </div>
-          <div class="ss-field" id="ss-beach-field" hidden>
-            <label for="ss-beach"><span class="ss-number" aria-hidden="true">04</span>Beach</label>
-            <div class="ss-select-wrap"><select id="ss-beach" name="beach" required disabled aria-describedby="ss-beach-hint"><option value="">Choose a beach</option></select></div>
-            <p class="ss-hint" id="ss-beach-hint"></p>
-          </div>
-        </div>
-        <div class="ss-bottom">
-          <p class="ss-status" id="ss-status" role="status" aria-live="polite">Choose a nation to get started.</p>
-          <div class="ss-buttons">
-            <button class="ss-reset" type="reset" id="ss-reset" hidden>Start again</button>
-            <button class="ss-submit" type="submit" id="ss-submit" disabled>Use this beach <span aria-hidden="true">&rarr;</span></button>
-          </div>
-        </div>
-      </form>
-      <section class="ss-result" id="ss-result" hidden tabindex="-1" aria-labelledby="ss-result-title">
-        <p class="ss-eyebrow">Your selected beach</p>
-        <h2 id="ss-result-title"></h2>
-        <p id="ss-result-path"></p>
+    </header>
+    <p id="beach-help" hidden>Choose which beach to show.</p>
+
+    <main id="main" aria-live="polite">
+      <div class="title">
+        <h1 id="place">Loading…</h1>
+        <span class="date" id="date"></span>
+      </div>
+      <figure>
+        <img id="art" alt="" width="1600" height="1000">
+        <button class="nav-btn" id="prev" type="button" aria-label="Previous hour">&#8249;</button>
+        <button class="nav-btn" id="next" type="button" aria-label="Next hour">&#8250;</button>
+      </figure>
+      <div class="controls">
+        <span class="hour-label" id="hour-label"></span>
+        <button class="now" id="now" type="button">Jump to now</button>
+      </div>
+      <div class="hours" id="hours" role="group" aria-label="Hours of the day"></div>
+
+      <div class="grid">
+        <section class="card" aria-labelledby="h-hour">
+          <h2 id="h-hour">This hour</h2>
+          <dl class="stats" id="stats"></dl>
+        </section>
+        <section class="card" aria-labelledby="h-day">
+          <h2 id="h-day">Today</h2>
+          <dl class="stats" id="day"></dl>
+          <h2 style="margin-top:14px">Hourly tide estimates</h2>
+          <ul class="tides" id="tides"></ul>
+          <p class="note" id="tide-note"></p>
+        </section>
+      </div>
+      <section class="card" style="margin-top:16px" aria-labelledby="h-art">
+        <h2 id="h-art">About this picture</h2>
+        <p class="prov" id="prov"></p>
       </section>
-    </section>
-    <footer class="ss-foot">
-      <p>Currently showing four beaches in Devon and Cornwall.</p>
-      <details>
-        <summary>About this location list</summary>
-        <p>Cornwall: Gwithian and Maenporth (Falmouth). Devon: Sidmouth Beach and Woolacombe.</p>
-        <p>Location identifiers are retained from the <a href="https://environment.data.gov.uk/bwq/profiles/">Environment Agency bathing-water list</a>. Display names have been shortened for this selector.</p>
-        <p>Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a>.</p>
-      </details>
-      <!-- This marker works with your existing scheduled static.yml timestamp step. -->
-      <p class="ss-updated" id="ss-updated" hidden>Page updated: <span id="ss-update-time">__LAST_UPDATED__</span></p>
+    </main>
+
+    <footer>
+      <p>Forecast data refreshed daily. Artwork is a stylised impression, not a navigational forecast. Tides are hourly estimates from modelled sea level, not official tide-table predictions.</p>
+      <ul id="attribution"></ul>
+      <p>Location identifiers from the <a href="https://environment.data.gov.uk/bwq/profiles/">Environment Agency bathing-water list</a>, Open Government Licence v3.0. Page built <span id="built">__LAST_UPDATED__</span>.</p>
     </footer>
-    <noscript><p>Please enable JavaScript to use the cascading beach selectors.</p></noscript>
-  </main>
+  </div>
 
-  <!-- LOCATION DATA: edit the arrays below to add or rename locations.
-       Four-location starter list. Original Environment Agency source IDs are preserved.
-       This is a fixed snapshot. The timestamp workflow updates the page time, not this list. -->
-  <script id="ss-beach-data" type="application/json">
-{
-  "England": {
-    "South West": {
-      "Cornwall": [
-        {
-          "id": "ea-ukk3105-31400",
-          "name": "Gwithian"
-        },
-        {
-          "id": "ea-ukk3102-28800",
-          "name": "Maenporth (Falmouth)"
-        }
-      ],
-      "Devon": [
-        {
-          "id": "ea-ukk4301-21800",
-          "name": "Sidmouth Beach"
-        },
-        {
-          "id": "ea-ukk4304-34400",
-          "name": "Woolacombe"
-        }
-      ]
-    }
-  }
-}
-  </script>
   <script>
-  (() => {
+  (async () => {
     'use strict';
-    const root = document.getElementById('seastate-selector');
-    const data = JSON.parse(document.getElementById('ss-beach-data').textContent);
-    const form = root.querySelector('#ss-location-form');
-    const keys = ['nation', 'region', 'area', 'beach'];
-    const selects = keys.map(key => root.querySelector('#ss-' + key));
-    const fields = keys.map(key => root.querySelector('#ss-' + key + '-field'));
-    const placeholders = ['Choose a nation', 'Choose a region', 'Choose an area', 'Choose a beach'];
-    const status = root.querySelector('#ss-status');
-    const submit = root.querySelector('#ss-submit');
-    const reset = root.querySelector('#ss-reset');
-    const result = root.querySelector('#ss-result');
-    const collator = new Intl.Collator('en-GB', { sensitivity: 'base', numeric: true });
-    const alphabetical = values => [...values].sort(collator.compare);
-    const countBeaches = value => Array.isArray(value)
-      ? value.length : Object.values(value).reduce((total, child) => total + countBeaches(child), 0);
-    root.querySelector('#ss-count').textContent = countBeaches(data).toLocaleString('en-GB') + ' coastal locations';
+    const COLOURS = ["#8fd3f4", "#3fa9e0", "#5cc6b4", "#2bb3a3", "#2e8b57", "#3fae6a", "#6b8e23", "#f2b632", "#e8a317", "#e07b1a", "#d4521c", "#a8461f", "#7a3b1d"];
+    const $ = id => document.getElementById(id);
+    const select = $('beach'), img = $('art');
+    const params = new URLSearchParams(location.search);
+    let forecast = null, index = 0;
+    const cache = new Map();
 
-    function fill(index, entries) {
-      const select = selects[index];
-      select.replaceChildren(new Option(placeholders[index], ''));
-      for (const entry of entries) select.add(new Option(entry.label, entry.value));
-      select.disabled = false;
-      fields[index].hidden = false;
+    const londonNow = () => {
+      const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map(x => [x.type, x.value]));
+      return { date: `${p.year}-${p.month}-${p.day}`, hour: Number(p.hour) };
+    };
+    const fmt = (v, unit, digits = 0) => v == null ? '–' : `${Number(v).toFixed(digits)}${unit}`;
+    const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+    const stat = (label, value, sub) => { const d = el('div'); d.append(el('dt', { textContent: label })); const dd = el('dd'); dd.append(value); if (sub) dd.append(el('small', { textContent: sub })); d.append(dd); return d; };
+
+    let indexJson;
+    try {
+      indexJson = await (await fetch('data/index.json', { cache: 'no-cache' })).json();
+    } catch (e) {
+      $('main').innerHTML = '<p class="error">Forecast data is not available yet. Please try again later.</p>';
+      return;
+    }
+    const counties = {};
+    for (const loc of indexJson.locations) (counties[loc.county] ??= []).push(loc);
+    for (const [county, locs] of Object.entries(counties)) {
+      const group = el('optgroup', { label: county });
+      for (const loc of locs) group.append(new Option(loc.name, loc.slug));
+      select.append(group);
+    }
+    const initial = indexJson.locations.some(l => l.slug === params.get('beach')) ? params.get('beach') : indexJson.locations[0]?.slug;
+    select.value = initial;
+
+    function nowIndex() {
+      const now = londonNow();
+      if (!forecast || forecast.date !== now.date) return 0;
+      const i = forecast.hours.findIndex(h => h.localHour === now.hour);
+      return i < 0 ? 0 : i;
     }
 
-    function clearAfter(index) {
-      for (let i = index + 1; i < selects.length; i++) {
-        selects[i].replaceChildren(new Option(placeholders[i], ''));
-        selects[i].disabled = true;
-        fields[i].hidden = true;
+    function syncUrl() {
+      const p = new URLSearchParams({ beach: select.value, hour: forecast.hours[index].localTime.slice(0, 2) });
+      history.replaceState(null, '', `?${p}`);
+    }
+
+    function preload(i) {
+      const h = forecast.hours[i];
+      if (h?.art && !cache.has(h.art.png)) { const im = new Image(); im.src = h.art.png; cache.set(h.art.png, im); }
+    }
+
+    function show(i) {
+      index = Math.max(0, Math.min(forecast.hours.length - 1, i));
+      const h = forecast.hours[index], w = h.wind, v = h.waves, t = h.tide;
+      if (h.art) {
+        img.src = h.art.png;
+        img.alt = `Painted seascape of ${forecast.location.name} at ${h.localTime}: Beaufort ${w.beaufort} ${w.beaufortName}, waves ${fmt(v.heightM, ' m', 1)}, ${h.cloudCover}% cloud, sun ${h.sun.phase}, moon ${h.moon.up ? 'up' : 'down'}.`;
       }
-      root.querySelector('#ss-beach-hint').textContent = '';
-      submit.disabled = true;
-      result.hidden = true;
-      root.querySelector('#ss-result-title').textContent = '';
-      root.querySelector('#ss-result-path').textContent = '';
+      $('prev').disabled = index === 0;
+      $('next').disabled = index === forecast.hours.length - 1;
+      $('hour-label').textContent = `${h.localTime} UK time`;
+      for (const b of $('hours').children) b.setAttribute('aria-pressed', String(Number(b.dataset.i) === index));
+      $('hours').children[index]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+      const tile = el('span', { className: 'tile', textContent: w.beaufort ?? '–' });
+      tile.style.background = COLOURS[w.beaufort] ?? '#555';
+      const force = el('span'); force.append(tile, w.beaufortName ?? '–');
+      $('stats').replaceChildren(
+        stat('Beaufort force', force),
+        stat('Wind', `${fmt(w.speedKmh, ' km/h')} from ${w.compassFrom ?? '–'}`, `gusts ${fmt(w.gustKmh, ' km/h')} · ${fmt(w.directionFrom, '°')}`),
+        stat('Waves', fmt(v.heightM, ' m', 1), `${fmt(v.periodS, ' s', 1)} period from ${v.compassFrom ?? '–'}`),
+        stat('Tide (estimate)', t.trend ?? '–', t.seaLevelM == null ? '' : `${t.seaLevelM.toFixed(2)} m vs mean sea level`),
+        stat('Cloud cover', fmt(h.cloudCover, '%')),
+        stat('Sky', { night: 'Night', dawn: 'Dawn', day: 'Daylight', dusk: 'Dusk' }[h.sun.phase], h.moon.up ? 'Moon above the horizon' : 'Moon below the horizon')
+      );
+      const a = h.art ?? {};
+      $('prov').replaceChildren(
+        a.source === 'ollama' ? `Painted as SVG by ${a.model} via Ollama Cloud` : 'Painted by the built-in procedural painter',
+        a.generatedAt ? ` at ${new Date(a.generatedAt).toLocaleString('en-GB', { timeZone: 'Europe/London' })}` : '',
+        ' from this hour’s forecast. ',
+        el('a', { href: a.svg ?? '#', textContent: 'SVG' }), ' · ',
+        el('a', { href: a.meta ?? '#', textContent: 'prompt & metadata' })
+      );
+      syncUrl();
+      preload(index + 1); preload(index - 1);
     }
 
-    function currentNode(index) {
-      let node = data;
-      for (let i = 0; i <= index; i++) {
-        if (!selects[i].value || !Object.prototype.hasOwnProperty.call(node, selects[i].value)) return null;
-        node = node[selects[i].value];
-      }
-      return node;
-    }
-
-    function getSelection() {
-      const beaches = currentNode(2);
-      if (!Array.isArray(beaches)) return null;
-      const beach = beaches.find(item => item.id === selects[3].value);
-      if (!beach) return null;
-      return {
-        country: 'UK', nation: selects[0].value, region: selects[1].value,
-        area: selects[2].value, beach: beach.name, beachId: beach.id
-      };
-    }
-
-    function changed(index) {
-      clearAfter(index);
-      reset.hidden = !selects[0].value;
-      if (index === 3) {
-        submit.disabled = !getSelection();
-        status.textContent = submit.disabled ? 'Choose a beach to continue.' : 'Ready — use this beach to confirm your choice.';
+    async function load(slug) {
+      $('place').textContent = 'Loading…';
+      try {
+        forecast = await (await fetch(`data/${slug}.json`, { cache: 'no-cache' })).json();
+      } catch (e) {
+        $('place').textContent = 'Forecast unavailable for this beach';
         return;
       }
-      const node = currentNode(index);
-      if (!node) {
-        status.textContent = index === 0 ? 'Choose a nation to get started.' : placeholders[index] + ' to continue.';
-        return;
-      }
-      if (index === 2) {
-        const beaches = [...node].sort((a, b) => collator.compare(a.name, b.name));
-        fill(3, beaches.map(beach => ({ label: beach.name, value: beach.id })));
-        root.querySelector('#ss-beach-hint').textContent = beaches.length + ' locations in ' + selects[2].value + '.';
-        status.textContent = 'Choose your beach in ' + selects[2].value + '.';
-      } else {
-        fill(index + 1, alphabetical(Object.keys(node)).map(name => ({ label: name, value: name })));
-        status.textContent = index === 0 ? 'Choose a region in ' + selects[0].value + '.' : 'Choose a county or coastal area in ' + selects[1].value + '.';
-      }
+      const loc = forecast.location;
+      $('place').textContent = `${loc.name}, ${loc.county}`;
+      const day = new Date(`${forecast.date}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const today = londonNow().date === forecast.date;
+      $('date').textContent = today ? day : `${day} (latest available forecast)`;
+      $('now').hidden = !today;
+
+      $('hours').replaceChildren(...forecast.hours.map((h, i) => {
+        const b = el('button', { type: 'button', title: `${h.localTime}: ${h.wind.beaufortName}, ${fmt(h.waves.heightM, ' m', 1)} waves` });
+        b.dataset.i = i;
+        b.style.background = COLOURS[h.wind.beaufort] ?? '#555';
+        b.setAttribute('aria-label', `${h.localTime}, force ${h.wind.beaufort}`);
+        b.append(h.localTime.slice(0, 2), el('small', { textContent: `F${h.wind.beaufort ?? '–'}` }));
+        b.addEventListener('click', () => show(i));
+        return b;
+      }));
+
+      const m = forecast.moon;
+      $('day').replaceChildren(
+        stat('Sunrise / sunset', `${forecast.sun.rise[0] ?? '–'} / ${forecast.sun.set[0] ?? '–'}`),
+        stat('Moon', m.phase, `${Math.round(m.illumination * 100)}% lit at noon`),
+        stat('Moonrise / moonset', `${m.rise[0] ?? '–'} / ${m.set[0] ?? '–'}`)
+      );
+      $('tides').replaceChildren(...(forecast.tides.events.length ? forecast.tides.events.map(e => el('li', { textContent: `${e.type === 'high' ? 'High' : 'Low'} ≈ ${e.localTime} (${e.heightM.toFixed(2)} m)` })) : [el('li', { textContent: 'No turning points identified' })]));
+      $('tide-note').textContent = forecast.tides.note;
+      $('attribution').replaceChildren(...forecast.attribution.map(a => { const li = el('li'); li.append(el('a', { href: a.url, textContent: a.name }), ` — ${a.note}${a.licence ? ` (${a.licence})` : ''}`); return li; }));
+
+      const wanted = params.get('hour');
+      const fromUrl = wanted != null && slug === initial ? forecast.hours.findIndex(h => h.localTime.slice(0, 2) === wanted.padStart(2, '0')) : -1;
+      params.delete('hour');
+      show(fromUrl >= 0 ? fromUrl : nowIndex());
     }
 
-    fill(0, Object.keys(data).map(name => ({ label: name, value: name })));
-    selects.forEach((select, index) => select.addEventListener('change', () => changed(index)));
-
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      const selection = getSelection();
-      if (!selection || !form.reportValidity()) return;
-      root.querySelector('#ss-result-title').textContent = selection.beach;
-      root.querySelector('#ss-result-path').textContent = [selection.country, selection.nation, selection.region, selection.area].join(' / ');
-      result.hidden = false;
-      status.textContent = selection.beach + ' selected.';
-      result.focus();
-      // Integration hook: listen for this event to fetch forecasts or save a preference.
-      // Nothing is sent to a server by this demo.
-      form.dispatchEvent(new CustomEvent('seastate:location-selected', { bubbles: true, detail: selection }));
+    select.addEventListener('change', () => load(select.value));
+    $('prev').addEventListener('click', () => show(index - 1));
+    $('next').addEventListener('click', () => show(index + 1));
+    $('now').addEventListener('click', () => show(nowIndex()));
+    document.addEventListener('keydown', e => {
+      if (!forecast || e.target.tagName === 'SELECT') return;
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
     });
-
-    form.addEventListener('reset', event => {
-      // Handle all resets here so hidden/disabled state stays in sync with values.
-      event.preventDefault();
-      selects[0].value = '';
-      clearAfter(0);
-      reset.hidden = true;
-      status.textContent = 'Choose a nation to get started.';
-      selects[0].focus();
-    });
-
-    // Clear browser-restored values, then restore only a valid URL hierarchy.
-    // Use a beachId returned by getSelection() for the beach query parameter.
-    selects[0].value = '';
-    clearAfter(0);
-    const params = new URLSearchParams(window.location.search);
-    keys.forEach((key, index) => {
-      const value = params.get(key);
-      if (!selects[index].disabled && value && [...selects[index].options].some(option => option.value === value)) {
-        selects[index].value = value;
-        changed(index);
-      }
-    });
-
-    // Useful when connecting this component to the rest of your app.
-    window.SeaStateLocation = Object.freeze({ getSelection, count: countBeaches(data) });
-    if (/^\d/.test(root.querySelector('#ss-update-time').textContent.trim())) root.querySelector('#ss-updated').hidden = false;
+    if (!/^\d/.test($('built').textContent)) $('built').textContent = new Date(indexJson.generatedAt).toLocaleString('en-GB', { timeZone: 'Europe/London' });
+    await load(initial);
   })();
   </script>
 </body>
