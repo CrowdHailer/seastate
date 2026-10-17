@@ -2,11 +2,12 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    - cron: "*/5 * * * *"
+
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -33,6 +34,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Update page timestamp
+        env:
+          TZ: Europe/London
+        run: |
+          timestamp=$(date '+%d %B %Y at %H:%M:%S %Z')
+          sed -i "s|__LAST_UPDATED__|$timestamp|g" index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
