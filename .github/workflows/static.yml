@@ -32,8 +32,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Fetch API data
+        run: node fetch-data.mjs
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Update page timestamp
         env:
           TZ: Europe/London
