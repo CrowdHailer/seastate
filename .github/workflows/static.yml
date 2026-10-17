@@ -1,16 +1,17 @@
-name: Deploy static content to Pages
+name: Build forecast artwork and deploy to Pages
 
 on:
   push:
     branches: ["main"]
 
+  # Daily, just after midnight UK time (00:17 UTC is 00:17 GMT / 01:17 BST).
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 0 * * *"
 
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -25,51 +26,50 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
+    timeout-minutes: 150
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          package-manager-cache: false
+          node-version: '22'
 
-      - name: Fetch API data
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Fetch weather, marine and astronomy data
         run: node fetch-data.mjs
 
-      - name: Save JSON back to repository
+      - name: Paint and render artwork
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          OLLAMA_MODEL: kimi-k2.6
+          OLLAMA_CONCURRENCY: '6'
+        run: node build-art.mjs
+
+      - name: Assemble site
+        env:
+          TZ: Europe/London
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add api-data.json
-
-          if git diff --cached --quiet; then
-            echo "API data has not changed."
-          else
-            git commit -m "Update API data"
-            git push origin HEAD:main
-          fi
+          cp index.html _site/index.html
+          timestamp=$(date '+%d %B %Y at %H:%M:%S %Z')
+          sed -i "s|__LAST_UPDATED__|$timestamp|g" _site/index.html
+          touch _site/.nojekyll
+          du -sh _site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Update page timestamp
-        env:
-          TZ: Europe/London
-        run: |
-          timestamp=$(date '+%d %B %Y at %H:%M:%S %Z')
-          sed -i "s|__LAST_UPDATED__|$timestamp|g" index.html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
