@@ -1,6 +1,3 @@
-console.log('this');
-process.exit(0);
-
 import { writeFile } from "node:fs/promises";
 // Replace this with your actual API endpoint.
 const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m", {
