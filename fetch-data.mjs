@@ -1,5 +1,8 @@
-import { writeFile } from "node:fs/promises";
 
+console.log('this);
+throw 'error';
+
+import { writeFile } from "node:fs/promises";
 // Replace this with your actual API endpoint.
 const response = await fetch("https://example.com/api/data", {
     signal: AbortSignal.timeout(30000)
